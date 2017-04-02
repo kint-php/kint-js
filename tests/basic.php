@@ -21,7 +21,8 @@ function error()
 
 set_error_handler('error');
 
-include dirname(__FILE__).'/../vendor/autoload.php';
+include dirname(__FILE__).'/../vendor/kint-php/kint/init.php';
+include dirname(__FILE__).'/../init.php';
 
 $testdata = array(
     1234,

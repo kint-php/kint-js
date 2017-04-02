@@ -16,7 +16,7 @@
         }
     ],
     "autoload": {
-        "files": ["src/Js.php", "src/init.php"]
+        "files": ["init.php"]
     },
     "scripts": {
         "format": [

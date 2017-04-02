@@ -35,4 +35,4 @@ before_script:
 
 script:
   - if [ $BUILD_TEST -eq 1 ]; then composer format && git status && git diff-files --quiet --exit-code; fi
-  - php ./test/basic.php
+  - php ./tests/basic.php

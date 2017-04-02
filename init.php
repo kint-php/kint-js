@@ -1,5 +1,9 @@
 <?php
 
+if (!class_exists('Kint_Js_Renderer', true)) {
+    require_once dirname(__FILE__).'/src/Js.php';
+}
+
 if (!function_exists('j')) {
     /**
      * Alias of Kint::dump(), however the output is dumped to the javascript console and
