@@ -21,7 +21,7 @@ function error()
 
 set_error_handler('error');
 
-include dirname(__FILE__).'/../vendor/kint-php/kint/init.php';
+include dirname(__FILE__).'/../vendor/kint-php/kint/build/kint.php';
 include dirname(__FILE__).'/../init.php';
 
 $testdata = array(
@@ -32,13 +32,24 @@ $testdata = array(
     null,
 );
 
+$expected = $testdata;
+$expected[] = $testdata;
+$expected[5][5] = 'RECURSION';
+
 $testdata[] = &$testdata;
 
-Kint::$cli_detection = false;
+$expected = json_encode($expected);
 
-j($testdata);
+Kint::$cli_detection = false;
+Kint::$return = true;
+
+echo 'JS'.PHP_EOL;
+if (strpos(j($testdata), $expected) === false) {
+    exit(1);
+}
 
 if ($error) {
+    echo 'Errors occurred'.PHP_EOL;
     exit(1);
 } else {
     exit(0);
