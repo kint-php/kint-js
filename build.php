@@ -18,18 +18,29 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use Kint\Kint;
-use Kint\Renderer\JsRenderer;
-use Kint\Utils;
+use Seld\PharUtils\Timestamps;
 
-if (!\class_exists('Kint\\Renderer\\JsRenderer', true)) {
-    require_once __DIR__.'/src/JsRenderer.php';
-}
+require_once __DIR__.'/vendor/autoload.php';
 
-Utils::composerSkipFlags();
+\mkdir(__DIR__.'/build');
 
-if (!\defined('KINT_SKIP_HELPERS') || !KINT_SKIP_HELPERS) {
-    require_once __DIR__.'/init_helpers.php';
-}
+$outpath = __DIR__.'/build/kint-js.phar';
 
-Kint::$renderers[JsRenderer::RENDER_MODE] = 'Kint\\Renderer\\JsRenderer';
+\unlink($outpath);
+$phar = new Phar($outpath);
+$phar->setStub('<?php
+/*
+ * '.\str_replace("\n", "\n * ", \trim(\file_get_contents(__DIR__.'/LICENSE.short'))).'
+ */
+
+require \'phar://\'.__FILE__.\'/init.php\'; __HALT_COMPILER();');
+
+$pathlen = \strlen(__DIR__);
+
+$phar->addFile(__DIR__.'/src/JsRenderer.php', '/src/JsRenderer.php');
+$phar->addFile(__DIR__.'/init.php', '/init.php');
+$phar->addFile(__DIR__.'/init_helpers.php', '/init_helpers.php');
+
+$phar = new Timestamps($outpath);
+$phar->updateTimestamps();
+$phar->save($outpath, Phar::SHA512);

@@ -1,38 +1,56 @@
 language: php
 
+stage: tests
+
 php:
-  - 5.2
-  - 5.3
-  - 5.4
-  - 5.5
-  - 5.6
-  - 7.0
+  - 7.2
   - nightly
-
-env: BUILD_TEST=false
-
-# Add 7.1 with build testing and 5.2 with only
-# basic testing. 5.1 isn't supported on TravisCI
-matrix:
-  include:
-    - php: 7.1
-      env: BUILD_TEST=true
-    - php: hhvm
-      dist: trusty
+  - 7.1
+  - 7.0
+  - 5.6
+  - 5.5
+  - 5.4
 
 before_install:
   - phpenv config-rm xdebug.ini || return 0
 
 install:
-  - phpenv global 7.1 || phpenv global 5.6 || return 0
-  - phpenv config-rm xdebug.ini || return 0
-  - composer self-update 1.0.0
-  - composer self-update
-  - composer install
-
-before_script:
-  - phpenv global "$TRAVIS_PHP_VERSION"
+  - composer remove --dev friendsofphp/php-cs-fixer vimeo/psalm
+  - composer config --unset platform.php
+  - composer update
 
 script:
-  - if $BUILD_TEST; then composer format && git status && git diff-files --quiet --exit-code; fi
+  - KINT_FILE=build/kint-js.phar php ./tests/basic.php
   - php ./tests/basic.php
+
+stages:
+  - analysis
+  - tests
+
+jobs:
+  include:
+    - php: 5.3
+      dist: precise
+
+    # Check if `composer format` was run correctly
+    - stage: analysis
+      install: composer install
+      script: composer format && git status && git diff-files --quiet --exit-code
+      env: analysis_type="composer format"
+
+    # Check if `composer build` was run correctly
+    - stage: analysis
+      install: composer install
+      script: composer clean && composer build && git status && git diff-files --quiet --exit-code
+      env: analysis_type="composer build"
+
+    # Check if code passes phpstan/psalm static analysis
+    - stage: analysis
+      install: composer install
+      script: composer analyze
+      env: analysis_type="composer analyze"
+
+    # Preliminary test run
+    - stage: analysis
+      install: composer install
+      script: php ./tests/basic.php

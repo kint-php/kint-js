@@ -1,10 +1,31 @@
 <?php
+
+/*
+ * JS renderer for Kint
+ * Copyright (C) 2016 Jonathan Vollebregt
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+use Kint\Kint;
+
 /**
  * A basic sanity test to ensure Kint doesn't explode
  * on PHP versions below composer/phpunit support.
  */
-error_reporting(E_ALL | E_STRICT);
-ini_set('display_errors', true);
+\error_reporting(E_ALL | E_STRICT);
+\ini_set('display_errors', true);
 
 $error = false;
 
@@ -19,10 +40,21 @@ function error()
     return false;
 }
 
-set_error_handler('error');
+\set_error_handler('error');
 
-include dirname(__FILE__).'/../vendor/kint-php/kint/build/kint.php';
-include dirname(__FILE__).'/../init.php';
+if (\getenv('KINT_FILE')) {
+    require __DIR__.'/../vendor/kint-php/kint/build/kint.phar';
+    require __DIR__.'/../'.\getenv('KINT_FILE');
+} else {
+    require __DIR__.'/../vendor/autoload.php';
+    require __DIR__.'/../init.php';
+}
+
+$composer = require __DIR__.'/../vendor/autoload.php';
+
+// Register the composer autoloader after the KINT_FILE autoloader
+$composer->unregister();
+$composer->register();
 
 $testdata = array(
     1234,
@@ -38,19 +70,18 @@ $expected[5][5] = 'RECURSION';
 
 $testdata[] = &$testdata;
 
-$expected = json_encode($expected);
+$expected = \json_encode($expected);
 
 Kint::$cli_detection = false;
 Kint::$return = true;
 
 echo 'JS'.PHP_EOL;
-if (strpos(j($testdata), $expected) === false) {
+if (false === \strpos(j($testdata), $expected)) {
     exit(1);
 }
 
 if ($error) {
     echo 'Errors occurred'.PHP_EOL;
     exit(1);
-} else {
-    exit(0);
 }
+    exit(0);

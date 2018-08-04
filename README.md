@@ -11,3 +11,14 @@ include 'vendor/autoload.php';
 
 j('data');
 ```
+
+OR
+
+```php
+<?php
+
+include 'kint.phar';
+include 'kint-js.phar';
+
+j('data');
+```
