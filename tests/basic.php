@@ -43,7 +43,25 @@ function error()
 \set_error_handler('error');
 
 if (\getenv('KINT_FILE')) {
-    require __DIR__.'/../vendor/kint-php/kint/build/kint.phar';
+    $composer = \file_get_contents(__DIR__.'/../composer.lock');
+    $composer = \json_decode($composer, true);
+    $version = false;
+
+    foreach ($composer['packages'] as $package) {
+        if ('kint-php/kint' === $package['name']) {
+            $version = $package['version'];
+        }
+    }
+
+    if (!$version) {
+        throw new RuntimeException('Kint not found in composer lock file');
+    }
+
+    $phar = \file_get_contents('https://raw.githubusercontent.com/kint-php/kint/'.$version.'/build/kint.phar');
+
+    \file_put_contents(__DIR__.'/kint.phar', $phar);
+
+    require __DIR__.'/kint.phar';
     require __DIR__.'/../'.\getenv('KINT_FILE');
 } else {
     require __DIR__.'/../vendor/autoload.php';
