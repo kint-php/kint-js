@@ -22,6 +22,11 @@
             "Kint\\Renderer\\": "src/"
         }
     },
+    "config": {
+        "platform": {
+            "php": "7.3"
+        }
+    },
     "scripts": {
         "format": [
             "@format:php"
