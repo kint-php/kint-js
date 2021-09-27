@@ -1,6 +1,8 @@
-# kint-js
+## Archived
 
-![](https://travis-ci.org/kint-php/kint-js.svg?branch=master)
+Kint JS will receive no updates for compatability with kint v4
+
+# kint-js
 
 A simple renderer and helper that uses Kint to dump to `console.log()`
 
